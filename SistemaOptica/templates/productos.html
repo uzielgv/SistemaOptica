@@ -1,0 +1,42 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+<h1 class="h3 mb-4 text-gray-800">Productos</h1>
+
+<a href="/productos/agregar/" class="btn btn-primary mb-3">
+    Agregar Producto
+</a>
+
+<div class="card shadow">
+    <div class="card-body">
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Marca</th>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for p in productos %}
+                <tr>
+                    <td>{{ p.nombre }}</td>
+                    <td>{{ p.marca }}</td>
+                    <td>{{ p.descripcion }}</td>
+                    <td>{{ p.precio_venta }}</td>
+                    <td>{{ p.stock_actual }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}
