@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Agregar Empleado</h2>
+
+<form method="POST">
+  {% csrf_token %}
+
+  <input class="form-control mb-2" name="username" placeholder="Usuario">
+  <input class="form-control mb-2" name="password" placeholder="Contraseña">
+
+  <select class="form-control mb-2" name="rol">
+    <option value="admin">Administrador</option>
+    <option value="empleado">Empleado</option>
+  </select>
+
+  <button class="btn btn-success">Guardar</button>
+</form>
+{% endblock %}

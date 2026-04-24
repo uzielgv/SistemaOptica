@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="h3 mb-4 text-gray-800">Empleados</h1>
+
+<div class="card shadow">
+    <div class="card-body">
+
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Rol</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for e in empleados %}
+            <tr>
+                <td>{{ e.username }}</td>
+                <td>{{ e.rol }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}

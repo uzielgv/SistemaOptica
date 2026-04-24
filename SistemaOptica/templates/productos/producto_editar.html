@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="h3 mb-4 text-gray-800">Editar Producto</h1>
+
+<div class="card shadow">
+  <div class="card-body">
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <input class="form-control mb-2" name="nombre" value="{{ producto.nombre }}">
+      <input class="form-control mb-2" name="marca" value="{{ producto.marca }}">
+      <input class="form-control mb-2" name="tipo" value="{{ producto.tipo }}">
+      <input class="form-control mb-2" name="precio_venta" value="{{ producto.precio_venta }}">
+      <input class="form-control mb-2" name="cantidad" value="{{ producto.cantidad }}">
+
+      <button class="btn btn-primary">
+        <i class="fas fa-edit"></i> Actualizar
+      </button>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

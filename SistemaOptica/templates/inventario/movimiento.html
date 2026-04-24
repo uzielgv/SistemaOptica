@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="h3 mb-4 text-gray-800">Movimientos de Inventario</h1>
+
+<div class="card shadow">
+    <div class="card-body">
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <label>Producto</label>
+            <select name="producto" class="form-control mb-2">
+                {% for p in productos %}
+                <option value="{{ p.id }}">{{ p.nombre }}</option>
+                {% endfor %}
+            </select>
+
+            <input class="form-control mb-2" name="cantidad" placeholder="Cantidad" required>
+
+            <select name="tipo" class="form-control mb-2">
+                <option value="entrada">Entrada</option>
+                <option value="salida">Salida</option>
+            </select>
+
+            <button class="btn btn-success">
+                <i class="fas fa-save"></i> Registrar
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="h3 mb-4 text-gray-800">Agregar Producto</h1>
+
+<div class="card shadow">
+    <div class="card-body">
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <input class="form-control mb-2" name="nombre" placeholder="Nombre" required>
+            <input class="form-control mb-2" name="marca" placeholder="Marca" required>
+            <input class="form-control mb-2" name="tipo" placeholder="Tipo" required>
+            <input class="form-control mb-2" name="precio_compra" placeholder="Precio compra" required>
+            <input class="form-control mb-2" name="precio_venta" placeholder="Precio venta" required>
+            <input class="form-control mb-2" name="cantidad" placeholder="Cantidad" required>
+            <input class="form-control mb-2" name="proveedor" placeholder="Proveedor">
+
+            <button class="btn btn-success">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
