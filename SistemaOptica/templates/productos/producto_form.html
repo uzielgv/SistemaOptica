@@ -10,13 +10,29 @@
         <form method="POST">
             {% csrf_token %}
 
-            <input class="form-control mb-2" name="nombre" placeholder="Nombre" required>
-            <input class="form-control mb-2" name="marca" placeholder="Marca" required>
-            <input class="form-control mb-2" name="tipo" placeholder="Tipo" required>
-            <input class="form-control mb-2" name="precio_compra" placeholder="Precio compra" required>
-            <input class="form-control mb-2" name="precio_venta" placeholder="Precio venta" required>
-            <input class="form-control mb-2" name="cantidad" placeholder="Cantidad" required>
-            <input class="form-control mb-2" name="proveedor" placeholder="Proveedor">
+            <input class="form-control mb-2" name="nombre" placeholder="Nombre" value="{{ producto.nombre|default:'' }}" required>
+
+            <input class="form-control mb-2" name="precio_venta" placeholder="Precio venta" value="{{ producto.precio_venta|default:'' }}" required>
+
+            <input class="form-control mb-2" name="cantidad" placeholder="Cantidad" value="{{ producto.stock_actual|default:'' }}" required>
+
+            <select name="categoria_id" class="form-control mb-2" required>
+                <option value="">Seleccione categoría</option>
+                {% for c in categorias %}
+                    <option value="{{ c.categoria_id }}">
+                        {{ c.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="proveedor_id" class="form-control mb-2" required>
+                <option value="">Seleccione proveedor</option>
+                {% for p in proveedores %}
+                    <option value="{{ p.proveedor_id }}">
+                        {{ p.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
 
             <button class="btn btn-success">
                 <i class="fas fa-save"></i> Guardar

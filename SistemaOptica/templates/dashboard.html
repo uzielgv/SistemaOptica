@@ -62,7 +62,7 @@ mo
             <tr>
                 <td>{{ p.nombre }}</td>
                 <td>
-                    {% if p.cantidad <= 5 %}
+                    {% if p.stock_actual <= 5 %}
                     <span class="badge bg-danger">Bajo</span>
                     {% else %}
                     <span class="badge bg-success">OK</span>
