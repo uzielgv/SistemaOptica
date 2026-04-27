@@ -7,16 +7,16 @@
 <div class="card shadow">
     <div class="card-body">
 
-        <form method="POST">
+        <form method="POST" action="{% url 'registrar_movimiento' %}">
             {% csrf_token %}
 
             <label>Producto</label>
-            <select name="producto" class="form-control mb-2">
+            <select name="producto" class="form-control mb-2" required>
+                <option value="">Seleccione un producto</option>
                 {% for p in productos %}
-                <option value="{{ p.id }}">{{ p.nombre }}</option>
+                    <option value="{{ p.producto_id }}">{{ p.nombre }}</option>
                 {% endfor %}
             </select>
-
             <input class="form-control mb-2" name="cantidad" placeholder="Cantidad" required>
 
             <select name="tipo" class="form-control mb-2">
@@ -29,7 +29,11 @@
             </button>
 
         </form>
-
+    <div class="col-md-6">
+        <a href="{% url 'historial_movimientos' %}" class="btn btn-secondary btn-block">
+            <i class="fas fa-list"></i> Volver al Historial
+        </a>
+    </div>
     </div>
 </div>
 
