@@ -4,20 +4,21 @@
 
 <h1 class="h3 mb-4 text-gray-800">Dashboard</h1>
 
-<div class="row">
+<div class="row mb-4">
 
-    <div class="col-md-4">
-        <div class="card border-left-primary shadow">
-            <div class="card-body">
-                <div class="text-xs font-weight-bold text-primary text-uppercase">
-                    Productos
-                </div>
-                <div class="h5 mb-0 font-weight-bold">
-                    {{ total_productos }}
-                </div>
-            </div>
-        </div>
+    <div class="col-md-6">
+        <a href="{% url 'registrar_movimiento' %}" class="btn btn-primary btn-block">
+            <i class="fas fa-plus"></i> Registrar Movimiento
+        </a>
     </div>
+
+    <div class="col-md-6">
+        <a href="{% url 'historial_movimientos' %}" class="btn btn-secondary btn-block">
+            <i class="fas fa-list"></i> Ver Historial
+        </a>
+    </div>
+
+</div>
 
     <div class="col-md-4">
         <div class="card border-left-danger shadow">
