@@ -1,8 +1,9 @@
 from urllib import request
+from django.db import connection
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Producto, Categoria, Proveedor, Movimiento
+from .models import Producto, Categoria, Proveedor, Movimiento, Usuario
 from django.utils import timezone
-
+from django.contrib.auth import authenticate, login, logout
 
 def inicio(request):
     return render(request, 'base.html')
@@ -141,3 +142,52 @@ def registrar_movimiento(request):
     return render(request, 'inventario/movimiento.html', {
         'productos': productos
     })
+
+def empleados(request):
+    empleados = Usuario.objects.all()
+    return render(request, 'usuarios/empleados.html', {
+        'empleados': empleados
+    })
+
+def registro(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        rol = request.POST['rol']
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO usuarios (nombre_usuario, password_hash, rol)
+                VALUES (%s, %s, %s)
+            """, [username, password, rol])
+
+        return redirect('login')
+
+    return render(request, 'usuarios/empleados_form.html')
+
+def login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        try:
+            user = Usuario.objects.get(
+                nombre_usuario=username,
+                password_hash=password
+            )
+
+            request.session['usuario_id'] = user.usuario_id
+            request.session['rol'] = user.rol
+
+            return redirect('dashboard')
+
+        except Usuario.DoesNotExist:
+            return render(request, 'usuarios/login.html', {
+                'error': 'Usuario o contraseña incorrectos'
+            })
+
+    return render(request, 'usuarios/login.html')
+
+def logout(request):
+    request.session.flush()
+    return redirect('login')

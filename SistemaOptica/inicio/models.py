@@ -12,7 +12,6 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Proveedor(models.Model):
     proveedor_id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=150)
@@ -67,3 +66,12 @@ class Movimiento(models.Model):
 
     class Meta:
         db_table = 'movimientos_inventario'
+
+class Usuario(models.Model):
+    usuario_id = models.AutoField(primary_key=True)
+    nombre_usuario = models.CharField(max_length=50)
+    password_hash = models.TextField()
+    rol = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = 'usuarios'

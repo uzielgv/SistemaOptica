@@ -18,7 +18,8 @@
             <tbody>
             {% for e in empleados %}
             <tr>
-                <td>{{ e.username }}</td>
+                <td>{{ e.usuario_id }}</td>
+                <td>{{ e.nombre_usuario }}</td>
                 <td>{{ e.rol }}</td>
             </tr>
             {% endfor %}
