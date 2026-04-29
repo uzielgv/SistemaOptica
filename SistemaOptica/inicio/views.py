@@ -4,10 +4,21 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Producto, Categoria, Proveedor, Movimiento, Usuario
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
+from functools import wraps
+
+
+def login_requerido(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if 'usuario_id' not in request.session:
+            return redirect('login')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def inicio(request):
-    return render(request, 'base.html')
+    return render(request, 'index.html')
 
+@login_requerido
 def dashboard(request):
     productos = Producto.objects.all()
 
@@ -20,6 +31,7 @@ def dashboard(request):
         'stock_bajo': stock_bajo,
     })
 
+@login_requerido
 def productos(request):
     productos = Producto.objects.select_related('categoria', 'proveedor').all()
     print(Producto.objects.all())
@@ -29,6 +41,7 @@ def productos(request):
         'productos': productos
     })
 
+@login_requerido
 def agregar_producto(request):
     categorias = Categoria.objects.all()
     proveedores = Proveedor.objects.all()
@@ -54,6 +67,7 @@ def agregar_producto(request):
         'proveedores': proveedores
     })
 
+@login_requerido
 def editar_producto(request, id):
     producto = get_object_or_404(Producto, producto_id=id)
 
@@ -90,17 +104,20 @@ def editar_producto(request, id):
         'proveedores': proveedores
     })
 
+@login_requerido
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, producto_id=id)
     producto.delete()
     return redirect('productos')
 
+@login_requerido
 def historial_movimientos(request):
     movimientos = Movimiento.objects.select_related('producto').all().order_by('-movimiento_id')
     return render(request, 'inventario/historial.html', {
         'movimientos': movimientos
     })
 
+@login_requerido
 def registrar_movimiento(request):
     productos = Producto.objects.all()
 
@@ -143,6 +160,7 @@ def registrar_movimiento(request):
         'productos': productos
     })
 
+@login_requerido
 def empleados(request):
     empleados = Usuario.objects.all()
     return render(request, 'usuarios/empleados.html', {
@@ -151,18 +169,16 @@ def empleados(request):
 
 def registro(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        rol = request.POST['rol']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        rol = request.POST.get('rol')
 
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO usuarios (nombre_usuario, password_hash, rol)
-                VALUES (%s, %s, %s)
-            """, [username, password, rol])
-
+        Usuario.objects.create(
+            nombre_usuario=username,
+            password_hash=password,
+            rol=rol
+        )
         return redirect('login')
-
     return render(request, 'usuarios/empleados_form.html')
 
 def login(request):

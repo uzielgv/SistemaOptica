@@ -17,11 +17,9 @@
 
         <form method="POST">
             {% csrf_token %}
-
-            <input class="form-control mb-2" name="username" placeholder="Usuario">
-            <input type="password" class="form-control mb-2" name="password" placeholder="Contraseña">
-
-            <button class="btn btn-primary w-100">Ingresar</button>
+            <input type="text" class="form-control form-control-user mb-3" name="username" placeholder="Usuario" required>
+            <input type="password" class="form-control form-control-user mb-3" name="password" placeholder="Contraseña" required>
+            <button type="submit" class="btn btn-primary btn-user btn-block">Ingresar</button>
         </form>
         <a href="{% url 'registro' %}" class="btn btn-secondary w-100 mt-2">
             Crear cuenta
