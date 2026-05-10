@@ -1,11 +1,20 @@
-from urllib import request
-from django.db import connection
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Producto, Categoria, Proveedor, Movimiento, Usuario
-from django.utils import timezone
-from django.contrib.auth import authenticate, login, logout
+import json
+from datetime import datetime
 from functools import wraps
 
+from django.db import connection, transaction
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncMonth
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+
+from .models import (
+    Producto, Categoria, Proveedor, Movimiento, Usuario,
+    Paciente, HistoriaClinica, ServicioMedico, Venta,
+    DetalleVenta, MovimientoInventario
+)
 
 def login_requerido(view_func):
     @wraps(view_func)
@@ -20,16 +29,22 @@ def inicio(request):
 
 @login_requerido
 def dashboard(request):
-    productos = Producto.objects.all()
+    total_pacientes = Paciente.objects.count()
+    productos_criticos = Producto.objects.filter(stock_actual__lte=5).count()
 
-    total_productos = productos.count()
-    stock_bajo = productos.filter(stock_actual__lte=5).count()
+    hoy = timezone.now().date()
+    ventas_hoy = Venta.objects.filter(fecha__date=hoy).aggregate(Sum('total'))['total__sum'] or 0
 
-    return render(request, 'dashboard.html', {
-        'productos': productos[:5],
-        'total_productos': total_productos,
-        'stock_bajo': stock_bajo,
-    })
+    ultimos_movimientos = MovimientoInventario.objects.select_related('producto', 'usuario').order_by('-fecha')[:5]
+
+    context = {
+        'total_pacientes': total_pacientes,
+        'productos_criticos': productos_criticos,
+        'ventas_hoy': ventas_hoy,
+        'ultimos_movimientos': ultimos_movimientos,
+    }
+    return render(request, 'dashboard.html', context)
+
 
 @login_requerido
 def productos(request):
@@ -180,6 +195,158 @@ def registro(request):
         )
         return redirect('login')
     return render(request, 'usuarios/empleados_form.html')
+
+@login_requerido
+def lista_pacientes(request):
+    pacientes = Paciente.objects.all()
+    return render(request, 'pacientes.html', {'pacientes': pacientes})
+
+@login_requerido
+def agregar_paciente(request):
+    if request.method == 'POST':
+        nuevo_p = Paciente.objects.create(
+            nombre=request.POST.get('nombre'),
+            telefono=request.POST.get('telefono'),
+            domicilio=request.POST.get('direccion'),
+            pasatiempos=request.POST.get('pasatiempos')
+        )
+        HistoriaClinica.objects.create(paciente=nuevo_p)
+        return redirect('pacientes')
+
+    return render(request, 'pacientes_form.html')
+
+@login_requerido
+def historia_clinica(request, id):
+    paciente = get_object_or_404(Paciente, id=id)
+    historia = get_object_or_404(HistoriaClinica, paciente=paciente)
+    ultimo_servicio = ServicioMedico.objects.filter(paciente=paciente).order_by('-fecha').first()
+
+    context = {
+        'paciente': paciente,
+        'historia': historia,
+        'ultimo_servicio': ultimo_servicio
+    }
+    return render(request, 'historia_clinica.html', context)
+
+@login_requerido
+def registrar_servicio(request):
+    if request.method == 'POST':
+        paciente_id = request.POST.get('paciente')
+        paciente_obj = get_object_or_404(Paciente, id=paciente_id)
+
+        ServicioMedico.objects.create(
+            paciente=paciente_obj,
+            notas_refraccion=request.POST.get('descripcion'),
+            presion_arterial=request.POST.get('presion_arterial'),
+            glucosa=request.POST.get('glucosa'),
+            signos_vitales=request.POST.get('signos_vitales')
+        )
+        return redirect('pacientes')
+
+    pacientes_lista = Paciente.objects.all()
+    return render(request, 'servicio_medico.html', {'pacientes': pacientes_lista})
+
+
+@login_requerido
+def nueva_venta(request):
+    if request.method == 'POST':
+        producto_id = request.POST.get('producto')
+        cantidad = int(request.POST.get('cantidad'))
+        paciente_id = request.POST.get('cliente')
+
+        producto = get_object_or_404(Producto, id=producto_id)
+        paciente = Paciente.objects.filter(id=paciente_id).first() if paciente_id else None
+
+        if producto.stock_actual < cantidad:
+            messages.error(request, f"Error: Stock insuficiente. Solo quedan {producto.stock_actual} unidades.")
+            return redirect('nueva_venta')
+
+        try:
+            with transaction.atomic():
+                total_venta = producto.precio_venta * cantidad
+                venta = Venta.objects.create(
+                    paciente=paciente,
+                    total=total_venta,
+                    usuario_vendedor_id=request.session.get('usuario_id')
+                )
+
+                DetalleVenta.objects.create(
+                    venta=venta,
+                    producto=producto,
+                    cantidad=cantidad,
+                    precio_unitario=producto.precio_venta
+                )
+
+                producto.stock_actual -= cantidad
+                producto.save()
+
+                MovimientoInventario.objects.create(
+                    producto=producto,
+                    tipo_movimiento='salida',
+                    cantidad=cantidad,
+                    usuario_id=request.session.get('usuario_id')
+                )
+
+                messages.success(request, "Venta realizada con éxito e inventario actualizado.")
+                return redirect('ventas')
+
+        except Exception as e:
+            messages.error(request, f"Ocurrió un error inesperado: {e}")
+            return redirect('nueva_venta')
+
+    productos = Producto.objects.filter(stock_actual__gt=0)
+    pacientes = Paciente.objects.all()
+    return render(request, 'venta_form.html', {
+        'productos': productos,
+        'pacientes': pacientes
+    })
+
+@login_requerido
+def lista_ventas(request):
+    ventas = Venta.objects.select_related('paciente', 'usuario_vendedor').all().order_by('-fecha')
+    return render(request, 'ventas.html', {'ventas': ventas})
+
+@login_requerido
+def reportes(request):
+    top_productos = Producto.objects.annotate(
+        cantidad_vendida=Sum('detalleventa__cantidad')
+    ).order_by('-cantidad_vendida')[:5]
+
+    inventario = Producto.objects.select_related('categoria').all()
+
+    total_ventas = Venta.objects.aggregate(Sum('total'))['total__sum'] or 0
+    productos_vendidos = DetalleVenta.objects.aggregate(Sum('cantidad'))['cantidad__sum'] or 0
+
+    context = {
+        'top_productos': top_productos,
+        'inventario_general': inventario,
+        'total_ventas': total_ventas,
+        'productos_vendidos': productos_vendidos,
+    }
+    return render(request, 'reportes.html', context)
+
+@login_requerido
+def reporte_grafica(request):
+    ventas_mensuales = Venta.objects.annotate(mes=TruncMonth('fecha')) \
+        .values('mes') \
+        .annotate(total_mes=Sum('total')) \
+        .order_by('mes')
+
+    labels = []
+    data = []
+
+    for registro in ventas_mensuales:
+        nombre_mes = registro['mes'].strftime("%b %Y")
+        labels.append(nombre_mes)
+
+        data.append(float(registro['total_mes']))
+
+    context = {
+        'labels': labels,
+        'data': data,
+    }
+
+    return render(request, 'reporte_grafica.html', context)
 
 def login(request):
     if request.method == 'POST':

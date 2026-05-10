@@ -1,0 +1,53 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4 border-left-success">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">Registrar Nueva Venta</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="cliente" class="font-weight-bold">Paciente</label>
+                            <select name="cliente" id="cliente" class="form-control">
+                                <option value="">Venta de mostrador (Público general)</option>
+                                {% for p in pacientes %}
+                                    <option value="{{ p.id }}">{{ p.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-8">
+                                <label for="producto" class="font-weight-bold">Producto</label>
+                                <select name="producto" id="producto" class="form-control" required>
+                                    <option value="" disabled selected>Seleccione un producto...</option>
+                                    {% for p in productos %}
+                                        <option value="{{ p.id }}">{{ p.nombre }} - ${{ p.precio_venta }} (Disp: {{ p.stock_actual }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="cantidad" class="font-weight-bold">Cantidad</label>
+                                <input type="number" min="1" class="form-control" id="cantidad" name="cantidad" placeholder="Ej. 1" required>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'ventas' %}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> Confirmar Venta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

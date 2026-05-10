@@ -1,0 +1,48 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4 border-left-primary">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Formulario de Paciente</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="nombre" class="font-weight-bold">Nombre Completo</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej. María López" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="telefono" class="font-weight-bold">Teléfono</label>
+                                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Ej. 662 123 4567" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="pasatiempos" class="font-weight-bold">Pasatiempos</label>
+                                <input type="text" class="form-control" id="pasatiempos" name="pasatiempos" placeholder="Ej. Lectura, Ciclismo">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="direccion" class="font-weight-bold">Domicilio</label>
+                            <textarea class="form-control" id="direccion" name="direccion" rows="2" placeholder="Calle, Número, Colonia" required></textarea>
+                        </div>
+
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'pacientes' %}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Guardar Paciente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

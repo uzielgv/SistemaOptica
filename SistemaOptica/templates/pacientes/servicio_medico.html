@@ -1,0 +1,67 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4 border-left-primary">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Registrar Nuevo Servicio Médico </h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="paciente" class="font-weight-bold">Paciente</label>
+                            <select name="paciente" id="paciente" class="form-control" required>
+                                <option value="" disabled selected>Seleccione un paciente...</option>
+                                {% for p in pacientes %}
+                                    <option value="{{ p.id }}">{{ p.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-8">
+                                <label for="descripcion" class="font-weight-bold">Servicio Realizado</label>
+                                <input type="text" class="form-control" id="descripcion" name="descripcion" placeholder="Ej. Examen de refracción ocular" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="costo" class="font-weight-bold">Costo ($)</label>
+                                <input type="number" step="0.01" class="form-control" id="costo" name="costo" placeholder="0.00" required>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <h6 class="font-weight-bold text-gray-800 mb-3">Signos Vitales y Mediciones</h6>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="presion_arterial">Presión Arterial</label>
+                                <input type="text" class="form-control" id="presion_arterial" name="presion_arterial" placeholder="Ej. 120/80">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="glucosa">Nivel de Glucosa</label>
+                                <input type="text" class="form-control" id="glucosa" name="glucosa" placeholder="Ej. 90 mg/dL">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signos_vitales">Otros Signos Vitales (Opcional)</label>
+                            <textarea class="form-control" id="signos_vitales" name="signos_vitales" rows="2" placeholder="Frecuencia cardíaca, temperatura, etc."></textarea>
+                        </div>
+
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'pacientes' %}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Guardar Servicio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

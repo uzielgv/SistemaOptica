@@ -1,27 +1,43 @@
 {% extends 'index.html' %}
 {% load static %}
+
 {% block content %}
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+        <h1 class="h3 mb-0 text-gray-800">Panel de Control</h1>
         <div>
             <a href="{% url 'registrar_movimiento' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                <i class="fas fa-plus fa-sm text-white-50"></i> Registrar Movimiento
+                <i class="fas fa-plus fa-sm text-white-50"></i> Añadir Inventario
             </a>
-            <a href="{% url 'historial_movimientos' %}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
-                <i class="fas fa-list fa-sm text-white-50"></i> Ver Historial
+            <a href="{% url 'nueva_venta' %}" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm">
+                <i class="fas fa-cash-register fa-sm text-white-50"></i> Nueva Venta
             </a>
         </div>
     </div>
 
     <div class="row">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Pacientes Registrados</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_pacientes }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-danger shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Productos con Stock Bajo</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stock_bajo }}</div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Stock Crítico (<= 5)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ productos_criticos }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
@@ -31,17 +47,16 @@
             </div>
         </div>
 
-
         <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total de Productos</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_productos }}</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Ingresos de Hoy</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">${{ ventas_hoy }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-boxes fa-2x text-gray-300"></i>
+                            <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -49,35 +64,48 @@
         </div>
     </div>
 
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Productos Recientes</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Stock</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for p in productos %}
-                        <tr>
-                            <td>{{ p.nombre }}</td>
-                            <td>
-                                {% if p.stock_actual <= 5 %}
-                                    <span class="badge badge-danger">Bajo ({{ p.stock_actual }})</span>
-                                {% else %}
-                                    <span class="badge badge-success">OK ({{ p.stock_actual }})</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Últimos Movimientos de Inventario (RF3)</h6>
+                    <a href="{% url 'historial_movimientos' %}" class="btn btn-sm btn-outline-primary">Ver todos</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>Producto</th>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Usuario Responsable</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for mov in ultimos_movimientos %}
+                                <tr>
+                                    <td class="align-middle">{{ mov.fecha|date:"d/M/Y H:i" }}</td>
+                                    <td class="align-middle">{{ mov.producto.nombre }}</td>
+                                    <td class="align-middle">
+                                            <span class="badge {% if mov.tipo_movimiento == 'entrada' %}badge-success{% else %}badge-danger{% endif %} p-2">
+                                                <i class="fas {% if mov.tipo_movimiento == 'entrada' %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
+                                                {{ mov.tipo_movimiento|upper }}
+                                            </span>
+                                    </td>
+                                    <td class="align-middle font-weight-bold">{{ mov.cantidad }}</td>
+                                    <td class="align-middle">{{ mov.usuario.username|default:"Sistema" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No hay movimientos recientes en el inventario.</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,56 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Historia Clínica: {{ paciente.nombre }}</h1>
+        <a href="{% url 'pacientes' %}" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Regresar al Directorio
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4 border-left-warning">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning"><i class="fas fa-notes-medical"></i> Antecedentes Clínicos</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0">
+                            <strong>Uso previo de lentes:</strong> {{ historia.uso_previo_lentes|yesno:"Sí,No"|default:"No especificado" }}
+                        </li>
+                        <li class="list-group-item px-0">
+                            <strong>Tiempo de uso:</strong> {{ historia.tiempo_uso|default:"N/A" }}
+                        </li>
+                        <li class="list-group-item px-0">
+                            <strong>Antecedentes Familiares:</strong> <br>
+                            {{ historia.antecedentes_familiares|default:"Ninguno registrado." }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow mb-4 border-left-info">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info"><i class="fas fa-eye"></i> Graduación y Diagnóstico</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Diagnóstico Actual:</h6>
+                        <p class="text-muted">{{ historia.diagnostico|default:"Sin diagnóstico" }}</p>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h6 class="font-weight-bold">Graduación:</h6>
+                        <div class="p-3 bg-light rounded text-center border">
+                            <span class="h5 text-dark">{{ historia.graduacion|default:"No registrada" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
