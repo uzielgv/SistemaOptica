@@ -67,7 +67,6 @@ def agregar_producto(request):
 
         Producto.objects.create(
             nombre=request.POST.get('nombre'),
-            descripcion="",
             precio_venta=request.POST.get('precio_venta'),
             stock_actual=request.POST.get('cantidad'),
             categoria=categoria,
