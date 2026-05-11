@@ -1,7 +1,7 @@
 from django.db import models
 
 class Categoria(models.Model):
-    categoria_id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)
 
@@ -12,35 +12,17 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
-class Proveedor(models.Model):
-    proveedor_id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=150)
-    contacto = models.CharField(max_length=100, blank=True, null=True)
-    telefono = models.CharField(max_length=20, blank=True, null=True)
-
-    class Meta:
-        db_table = 'proveedores'
-        managed = False
-
-    def __str__(self):
-        return self.nombre
-
 class Producto(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=150)
     precio_venta = models.DecimalField(max_digits=10, decimal_places=2)
     stock_actual = models.IntegerField()
+    marca = models.CharField(max_length=100, null=True, blank=True)
 
-    categoria_id = models.ForeignKey(
+    categoria = models.ForeignKey(
         Categoria,
         on_delete=models.CASCADE,
-        db_column='id'
-    )
-
-    proveedor = models.ForeignKey(
-        Proveedor,
-        on_delete=models.CASCADE,
-        db_column='marca'
+        db_column='categoria_id'
     )
 
     class Meta:
@@ -48,22 +30,6 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
-    
-class Movimiento(models.Model):
-    movimiento_id = models.AutoField(primary_key=True)
-    
-    producto = models.ForeignKey(
-        Producto,
-        db_column='producto_id',
-        on_delete=models.CASCADE
-    )
-
-    tipo = models.CharField(max_length=10)
-    cantidad = models.IntegerField()
-    fecha = models.DateTimeField(db_column='fecha_movimiento')
-
-    class Meta:
-        db_table = 'movimientos_inventario'
 
 class Usuario(models.Model):
     id = models.AutoField(primary_key=True)
@@ -94,7 +60,11 @@ class Paciente(models.Model):
 
 class HistoriaClinica(models.Model):
     id = models.AutoField(primary_key=True)
-    paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE)
+    paciente = models.ForeignKey(
+        'Paciente', 
+        on_delete=models.CASCADE,
+        db_column='paciente_id'
+    )
     uso_previo_lentes = models.BooleanField(default=False)
     tiempo_uso = models.CharField(max_length=100, null=True, blank=True)
     graduacion_micas = models.TextField(null=True, blank=True)
@@ -106,8 +76,16 @@ class HistoriaClinica(models.Model):
 
 class ServicioMedico(models.Model):
     id = models.AutoField(primary_key=True)
-    paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE)
-    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+    paciente = models.ForeignKey(
+        'Paciente', 
+        on_delete=models.CASCADE,
+        db_column='paciente_id'
+    )
+    usuario = models.ForeignKey(
+        'Usuario', 
+        on_delete=models.CASCADE,
+        db_column='usuario_id'
+    )
     tipo_servicio = models.CharField(max_length=100)
     presion_arterial = models.CharField(max_length=20, null=True, blank=True)
     glucosa = models.CharField(max_length=20, null=True, blank=True)
