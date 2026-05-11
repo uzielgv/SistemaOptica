@@ -31,7 +31,7 @@ class Producto(models.Model):
     precio_venta = models.DecimalField(max_digits=10, decimal_places=2)
     stock_actual = models.IntegerField()
 
-    categoria = models.ForeignKey(
+    categoria_id = models.ForeignKey(
         Categoria,
         on_delete=models.CASCADE,
         db_column='id'
