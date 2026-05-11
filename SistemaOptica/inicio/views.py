@@ -93,7 +93,6 @@ def editar_producto(request, id):
 
         nuevo_stock = int(request.POST.get('cantidad'))
         producto.nombre = request.POST.get('nombre')
-        producto.descripcion = request.POST.get('descripcion') or ""
         producto.precio_venta = request.POST.get('precio_venta')
         producto.stock_actual = nuevo_stock
         producto.categoria = Categoria.objects.get(pk=request.POST.get('categoria_id'))
@@ -234,10 +233,10 @@ def registrar_servicio(request):
 
         ServicioMedico.objects.create(
             paciente=paciente_obj,
-            notas_refraccion=request.POST.get('descripcion'),
+            tipo_servicio=request.POST.get('descripcion'),
             presion_arterial=request.POST.get('presion_arterial'),
             glucosa=request.POST.get('glucosa'),
-            signos_vitales=request.POST.get('signos_vitales')
+            signos_vitales_otros=request.POST.get('signos_vitales')
         )
         return redirect('pacientes')
 

@@ -16,8 +16,6 @@
 
             <input class="form-control mb-2" name="cantidad" placeholder="Cantidad" value="{{ producto.stock_actual|default:'' }}" required>
 
-            <textarea class="form-control mb-2" name="descripcion" placeholder="Descripción">{{ producto.descripcion|default:'' }}</textarea>
-
             <select name="categoria_id" class="form-control mb-2" required>
                 <option value="">Seleccione categoría</option>
                 {% for c in categorias %}
