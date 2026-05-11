@@ -47,7 +47,7 @@ def dashboard(request):
 
 @login_requerido
 def productos(request):
-    productos = Producto.objects.select_related('categoria', 'proveedor').all()
+    productos = Producto.objects.select_related('categoria').all()
     print(Producto.objects.all())
     print(productos)
     print(request.POST)
