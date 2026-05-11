@@ -34,7 +34,7 @@ class Producto(models.Model):
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.CASCADE,
-        db_column='categoria_id'
+        db_column='id'
     )
 
     proveedor = models.ForeignKey(
