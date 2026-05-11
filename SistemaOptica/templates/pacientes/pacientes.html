@@ -27,9 +27,9 @@
                     <tbody>
                     {% for p in pacientes %}
                         <tr>
-                            <td>{{ p.nombre }}</td>
+                            <td>{{ p.nombre_completo }}</td>
                             <td>{{ p.telefono }}</td>
-                            <td>{{ p.direccion|default:"-" }}</td>
+                            <td>{{ p.domicilio|default:"-" }}</td>
                             <td>{{ p.pasatiempos|default:"-" }}</td>
                             <td>
                                 <a href="{% url 'historia_clinica' p.id %}" class="btn btn-info btn-circle btn-sm" title="Historia Clínica">
@@ -53,5 +53,3 @@
             </div>
         </div>
     </div>
-
-{% endblock %}

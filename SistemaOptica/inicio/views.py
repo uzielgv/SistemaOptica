@@ -33,9 +33,9 @@ def dashboard(request):
     productos_criticos = Producto.objects.filter(stock_actual__lte=5).count()
 
     hoy = timezone.now().date()
-    ventas_hoy = Venta.objects.filter(fecha__date=hoy).aggregate(Sum('total'))['total__sum'] or 0
+    ventas_hoy = Venta.objects.filter(fecha_venta__date=hoy).aggregate(Sum('total_venta'))['total_venta__sum'] or 0
 
-    ultimos_movimientos = MovimientoInventario.objects.select_related('producto', 'usuario').order_by('-fecha')[:5]
+    ultimos_movimientos = MovimientoInventario.objects.select_related('producto', 'usuario').order_by('-fecha_movimiento')[:5]
 
     context = {
         'total_pacientes': total_pacientes,
@@ -44,7 +44,6 @@ def dashboard(request):
         'ultimos_movimientos': ultimos_movimientos,
     }
     return render(request, 'dashboard.html', context)
-
 
 @login_requerido
 def productos(request):
@@ -127,7 +126,7 @@ def eliminar_producto(request, id):
 
 @login_requerido
 def historial_movimientos(request):
-    movimientos = Movimiento.objects.select_related('producto').all().order_by('-movimiento_id')
+    movimientos = MovimientoInventario.objects.select_related('producto', 'usuario').all().order_by('-id')
     return render(request, 'inventario/historial.html', {
         'movimientos': movimientos
     })
@@ -189,7 +188,7 @@ def registro(request):
         rol = request.POST.get('rol')
 
         Usuario.objects.create(
-            nombre_usuario=username,
+            username=username,
             password_hash=password,
             rol=rol
         )
@@ -199,13 +198,13 @@ def registro(request):
 @login_requerido
 def lista_pacientes(request):
     pacientes = Paciente.objects.all()
-    return render(request, 'pacientes.html', {'pacientes': pacientes})
+    return render(request, 'pacientes/pacientes.html', {'pacientes': pacientes})
 
 @login_requerido
 def agregar_paciente(request):
     if request.method == 'POST':
         nuevo_p = Paciente.objects.create(
-            nombre=request.POST.get('nombre'),
+            nombre_completo=request.POST.get('nombre'),
             telefono=request.POST.get('telefono'),
             domicilio=request.POST.get('direccion'),
             pasatiempos=request.POST.get('pasatiempos')
@@ -213,7 +212,7 @@ def agregar_paciente(request):
         HistoriaClinica.objects.create(paciente=nuevo_p)
         return redirect('pacientes')
 
-    return render(request, 'pacientes_form.html')
+    return render(request, 'pacientes/paciente_form.html')
 
 @login_requerido
 def historia_clinica(request, id):
@@ -226,7 +225,7 @@ def historia_clinica(request, id):
         'historia': historia,
         'ultimo_servicio': ultimo_servicio
     }
-    return render(request, 'historia_clinica.html', context)
+    return render(request, 'pacientes/historia_clinica.html', context)
 
 @login_requerido
 def registrar_servicio(request):
@@ -244,8 +243,7 @@ def registrar_servicio(request):
         return redirect('pacientes')
 
     pacientes_lista = Paciente.objects.all()
-    return render(request, 'servicio_medico.html', {'pacientes': pacientes_lista})
-
+    return render(request, 'pacientes/servicio_medico.html', {'pacientes': pacientes_lista})
 
 @login_requerido
 def nueva_venta(request):
@@ -296,34 +294,25 @@ def nueva_venta(request):
 
     productos = Producto.objects.filter(stock_actual__gt=0)
     pacientes = Paciente.objects.all()
-    return render(request, 'venta_form.html', {
+    return render(request, 'ventas/venta_form.html', {
         'productos': productos,
         'pacientes': pacientes
     })
 
 @login_requerido
 def lista_ventas(request):
-    ventas = Venta.objects.select_related('paciente', 'usuario_vendedor').all().order_by('-fecha')
-    return render(request, 'ventas.html', {'ventas': ventas})
+    ventas = Venta.objects.select_related('paciente', 'usuario').all().order_by('-fecha_venta')
+    return render(request, 'ventas/ventas.html', {'ventas': ventas})
 
 @login_requerido
 def reportes(request):
-    top_productos = Producto.objects.annotate(
-        cantidad_vendida=Sum('detalleventa__cantidad')
-    ).order_by('-cantidad_vendida')[:5]
+    total_ventas = Venta.objects.aggregate(
+        Sum('total_venta')
+    )['total_venta__sum'] or 0
 
-    inventario = Producto.objects.select_related('categoria').all()
-
-    total_ventas = Venta.objects.aggregate(Sum('total'))['total__sum'] or 0
-    productos_vendidos = DetalleVenta.objects.aggregate(Sum('cantidad'))['cantidad__sum'] or 0
-
-    context = {
-        'top_productos': top_productos,
-        'inventario_general': inventario,
-        'total_ventas': total_ventas,
-        'productos_vendidos': productos_vendidos,
-    }
-    return render(request, 'reportes.html', context)
+    return render(request, 'reportes/reportes.html', {
+        'total_ventas': total_ventas
+    })
 
 @login_requerido
 def reporte_grafica(request):
@@ -346,7 +335,7 @@ def reporte_grafica(request):
         'data': data,
     }
 
-    return render(request, 'reporte_grafica.html', context)
+    return render(request, 'reportes/reporte_grafica.html', context)
 
 def login(request):
     if request.method == 'POST':
@@ -355,11 +344,11 @@ def login(request):
 
         try:
             user = Usuario.objects.get(
-                nombre_usuario=username,
-                password_hash=password
-            )
+            username=username,
+            password_hash=password
+        )
 
-            request.session['usuario_id'] = user.usuario_id
+            request.session['usuario_id'] = user.id
             request.session['rol'] = user.rol
 
             return redirect('dashboard')

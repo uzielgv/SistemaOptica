@@ -86,12 +86,12 @@
                             <tbody>
                             {% for mov in ultimos_movimientos %}
                                 <tr>
-                                    <td class="align-middle">{{ mov.fecha|date:"d/M/Y H:i" }}</td>
+                                    <td class="align-middle">{{ mov.fecha_movimiento|date:"d/M/Y H:i" }}</td>
                                     <td class="align-middle">{{ mov.producto.nombre }}</td>
                                     <td class="align-middle">
-                                            <span class="badge {% if mov.tipo_movimiento == 'entrada' %}badge-success{% else %}badge-danger{% endif %} p-2">
-                                                <i class="fas {% if mov.tipo_movimiento == 'entrada' %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
-                                                {{ mov.tipo_movimiento|upper }}
+                                            <span class="badge {% if mov.tipo == 'entrada' %}badge-success{% else %}badge-danger{% endif %} p-2">
+                                                <i class="fas {% if mov.tipo == 'entrada' %}fa-arrow-up{% else %}fa-arrow-down{% endif %}"></i>
+                                                {{ mov.tipo|upper }}
                                             </span>
                                     </td>
                                     <td class="align-middle font-weight-bold">{{ mov.cantidad }}</td>
