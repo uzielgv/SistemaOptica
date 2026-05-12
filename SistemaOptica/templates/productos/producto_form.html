@@ -19,7 +19,7 @@
             <select name="categoria_id" class="form-control mb-2" required>
                 <option value="">Seleccione categoría</option>
                 {% for c in categorias %}
-                    <option value="{{ c.categoria_id }}">
+                    <option value="{{ c.id }}" {% if producto and producto.categoria_id == c.id %}selected{% endif %}>
                         {{ c.nombre }}
                     </option>
                 {% endfor %}
@@ -28,7 +28,7 @@
             <select name="proveedor_id" class="form-control mb-2" required>
                 <option value="">Seleccione proveedor</option>
                 {% for p in proveedores %}
-                    <option value="{{ p.proveedor_id }}">
+                    <option value="{{ p.proveedor_id }}" {% if producto and producto.proveedor_id == p.proveedor_id %}selected{% endif %}>
                         {{ p.nombre }}
                     </option>
                 {% endfor %}

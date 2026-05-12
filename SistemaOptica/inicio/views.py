@@ -47,7 +47,7 @@ def dashboard(request):
 
 @login_requerido
 def productos(request):
-    productos = Producto.objects.select_related('categoria').all()
+    productos = Producto.objects.select_related('categoria', 'proveedor').all()
     print(Producto.objects.all())
     print(productos)
     print(request.POST)
@@ -82,7 +82,7 @@ def agregar_producto(request):
 
 @login_requerido
 def editar_producto(request, id):
-    producto = get_object_or_404(Producto, producto_id=id)
+    producto = get_object_or_404(Producto, id=id)
 
     categorias = Categoria.objects.all()
     proveedores = Proveedor.objects.all()
@@ -118,7 +118,7 @@ def editar_producto(request, id):
 
 @login_requerido
 def eliminar_producto(request, id):
-    producto = get_object_or_404(Producto, producto_id=id)
+    producto = get_object_or_404(Producto, id=id)
     producto.delete()
     return redirect('productos')
 

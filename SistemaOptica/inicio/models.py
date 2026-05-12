@@ -36,6 +36,12 @@ class Producto(models.Model):
         on_delete=models.CASCADE,
         db_column='categoria_id'
     )
+    
+    proveedor = models.ForeignKey(
+        Proveedor,
+        on_delete=models.CASCADE,
+        db_column='proveedor_id'
+    )
 
     class Meta:
         db_table = 'productos'

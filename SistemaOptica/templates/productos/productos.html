@@ -20,8 +20,8 @@
             <thead>
             <tr>
                 <th>Nombre</th>
-                <th>Marca</th>
-                <th>Tipo</th>
+                <th>Proveedor</th>
+                <th>Categoría</th>
                 <th>Precio</th>
                 <th>Cantidad</th>
                 <th>Acciones</th>
@@ -43,11 +43,11 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'editar_producto' p.producto_id %}" class="btn btn-warning btn-sm">
+                    <a href="{% url 'editar_producto' p.id %}" class="btn btn-warning btn-sm">
                         <i class="fas fa-edit"></i>
                     </a>
 
-                    <a href="{% url 'eliminar_producto' p.producto_id %}" class="btn btn-danger btn-sm"
+                    <a href="{% url 'eliminar_producto' p.id %}" class="btn btn-danger btn-sm"
                         onclick="return confirm('¿Eliminar producto?')">
                         <i class="fas fa-trash"></i>
                     </a>
