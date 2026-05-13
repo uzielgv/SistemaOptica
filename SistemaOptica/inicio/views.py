@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from .models import (
-    Producto, Categoria, Proveedor, Movimiento, Usuario,
+    Producto, Categoria, Proveedor, Usuario,
     Paciente, HistoriaClinica, ServicioMedico, Venta,
     DetalleVenta, MovimientoInventario
 )
@@ -88,24 +88,29 @@ def editar_producto(request, id):
     proveedores = Proveedor.objects.all()
 
     if request.method == 'POST':
-
         stock_anterior = producto.stock_actual
 
         nuevo_stock = int(request.POST.get('cantidad'))
         producto.nombre = request.POST.get('nombre')
         producto.precio_venta = request.POST.get('precio_venta')
         producto.stock_actual = nuevo_stock
-        producto.categoria = Categoria.objects.get(pk=request.POST.get('categoria_id'))
-        producto.proveedor = Proveedor.objects.get(pk=request.POST.get('proveedor_id'))
+        producto.categoria = Categoria.objects.get(
+            pk=request.POST.get('categoria_id')
+        )
+        producto.proveedor = Proveedor.objects.get(
+            pk=request.POST.get('proveedor_id')
+        )
         producto.save()
 
         diferencia = nuevo_stock - stock_anterior
 
         if diferencia != 0:
-            Movimiento.objects.create(
+            MovimientoInventario.objects.create(
                 producto=producto,
+                usuario_id=request.session.get('usuario_id'),
                 tipo='entrada' if diferencia > 0 else 'salida',
-                cantidad=abs(diferencia)
+                cantidad=abs(diferencia),
+                fecha_movimiento=timezone.now()
             )
 
         return redirect('productos')
@@ -159,18 +164,17 @@ def registrar_movimiento(request):
 
         producto.save()
 
-        Movimiento.objects.create(
+        MovimientoInventario.objects.create(
             producto=producto,
+            usuario_id=request.session.get('usuario_id'),
             tipo=tipo,
             cantidad=cantidad,
-            fecha=timezone.now()
+            fecha_movimiento=timezone.now()
         )
 
         return redirect('historial_movimientos')
 
-    return render(request, 'inventario/movimiento.html', {
-        'productos': productos
-    })
+    return render(request, 'inventario/movimiento.html', {'productos': productos})
 
 @login_requerido
 def empleados(request):
@@ -342,9 +346,9 @@ def reportes(request):
 
 @login_requerido
 def reporte_grafica(request):
-    ventas_mensuales = Venta.objects.annotate(mes=TruncMonth('fecha')) \
+    ventas_mensuales = Venta.objects.annotate(mes=TruncMonth('fecha_venta')) \
         .values('mes') \
-        .annotate(total_mes=Sum('total')) \
+        .annotate(total_mes=Sum('total_venta')) \
         .order_by('mes')
 
     labels = []

@@ -31,7 +31,7 @@
                             <td>VNT-{{ v.id|stringformat:"04d" }}</td>
                             <td>{{ v.cliente.nombre|default:"Mostrador" }}</td>
                             <td>{{ v.usuario_vendedor.username|default:"Admin" }}</td>
-                            <td>{{ v.fecha|date:"d/M/Y H:i" }}</td>
+                            <td>{{ v.fecha_venta|date:"d/m/Y H:i" }}</td>
                             <td class="text-success font-weight-bold">${{ v.total }}</td>
                             <td>
                                 <button class="btn btn-primary btn-sm" title="Ver Detalles">

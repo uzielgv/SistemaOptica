@@ -49,22 +49,6 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
-class Movimiento(models.Model):
-    movimiento_id = models.AutoField(primary_key=True)
-    
-    producto = models.ForeignKey(
-        Producto,
-        db_column='producto_id',
-        on_delete=models.CASCADE
-    )
-
-    tipo = models.CharField(max_length=10)
-    cantidad = models.IntegerField()
-    fecha = models.DateTimeField(db_column='fecha_movimiento')
-
-    class Meta:
-        db_table = 'movimientos_inventario'
-
 class Usuario(models.Model):
     id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=50, unique=True)

@@ -14,7 +14,7 @@
             <select name="producto" class="form-control mb-2" required>
                 <option value="">Seleccione un producto</option>
                 {% for p in productos %}
-                    <option value="{{ p.producto_id }}">{{ p.nombre }}</option>
+                    <option value="{{ p.id }}">{{ p.nombre }}</option>
                 {% endfor %}
             </select>
             <input class="form-control mb-2" name="cantidad" placeholder="Cantidad" required>

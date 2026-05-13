@@ -36,10 +36,12 @@
                 <td>{{ p.categoria.nombre }}</td>
                 <td>{{ p.precio_venta }}</td>
                 <td>
+                    {{ p.stock_actual }}
+
                     {% if p.stock_actual <= 5 %}
-                    <span class="badge bg-danger">Bajo</span>
+                        <span class="badge bg-danger ml-2">Bajo</span>
                     {% else %}
-                    <span class="badge bg-success">Disponible</span>
+                        <span class="badge bg-success ml-2">Disponible</span>
                     {% endif %}
                 </td>
                 <td>
