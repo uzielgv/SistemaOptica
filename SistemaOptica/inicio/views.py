@@ -89,11 +89,12 @@ def editar_producto(request, id):
 
     if request.method == 'POST':
         stock_anterior = producto.stock_actual
-
         nuevo_stock = int(request.POST.get('cantidad'))
+
+        diferencia = nuevo_stock - stock_anterior
+
         producto.nombre = request.POST.get('nombre')
         producto.precio_venta = request.POST.get('precio_venta')
-        producto.stock_actual = nuevo_stock
         producto.categoria = Categoria.objects.get(
             pk=request.POST.get('categoria_id')
         )
@@ -101,8 +102,6 @@ def editar_producto(request, id):
             pk=request.POST.get('proveedor_id')
         )
         producto.save()
-
-        diferencia = nuevo_stock - stock_anterior
 
         if diferencia != 0:
             MovimientoInventario.objects.create(
@@ -156,13 +155,6 @@ def registrar_movimiento(request):
                 'productos': productos,
                 'error': 'No hay suficiente stock'
             })
-
-        if tipo == 'entrada':
-            producto.stock_actual += cantidad
-        else:
-            producto.stock_actual -= cantidad
-
-        producto.save()
 
         MovimientoInventario.objects.create(
             producto=producto,
@@ -302,9 +294,6 @@ def nueva_venta(request):
                     cantidad=cantidad,
                     precio_unitario_aplicado=producto.precio_venta
                 )
-
-                producto.stock_actual -= cantidad
-                producto.save()
 
                 MovimientoInventario.objects.create(
                     producto=producto,
