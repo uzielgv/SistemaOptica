@@ -52,7 +52,7 @@
                     <ul class="list-group list-group-flush">
                         {% for p in top_productos %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ p.nombre }}
+                                {{ p.producto__nombre }}
                                 <span class="badge badge-primary badge-pill">{{ p.cantidad_vendida }} vendidos</span>
                             </li>
                             {% empty %}

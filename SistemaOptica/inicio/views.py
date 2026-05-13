@@ -325,12 +325,29 @@ def lista_ventas(request):
 
 @login_requerido
 def reportes(request):
+
     total_ventas = Venta.objects.aggregate(
-        Sum('total_venta')
-    )['total_venta__sum'] or 0
+        total=Sum('total_venta')
+    )['total'] or 0
+
+    productos_vendidos = DetalleVenta.objects.aggregate(
+        total=Sum('cantidad')
+    )['total'] or 0
+
+    top_productos = (
+        DetalleVenta.objects
+        .values('producto__nombre')
+        .annotate(cantidad_vendida=Sum('cantidad'))
+        .order_by('-cantidad_vendida')[:5]
+    )
+
+    inventario = Producto.objects.all()
 
     return render(request, 'reportes/reportes.html', {
-        'total_ventas': total_ventas
+        'total_ventas': total_ventas,
+        'productos_vendidos': productos_vendidos,
+        'top_productos': top_productos,
+        'inventario': inventario
     })
 
 @login_requerido
