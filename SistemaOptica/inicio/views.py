@@ -213,10 +213,31 @@ def agregar_paciente(request):
     return render(request, 'pacientes/paciente_form.html')
 
 @login_requerido
+def editar_paciente(request, id):
+    paciente = get_object_or_404(Paciente, id=id)
+
+    if request.method == 'POST':
+        paciente.nombre_completo = request.POST.get('nombre')
+        paciente.telefono = request.POST.get('telefono')
+        paciente.domicilio = request.POST.get('direccion')
+        paciente.pasatiempos = request.POST.get('pasatiempos')
+        paciente.save()
+
+        return redirect('pacientes')
+
+    return render(request, 'pacientes/paciente_form.html', {'paciente': paciente})
+
+@login_requerido
+def eliminar_paciente(request, id):
+    paciente = get_object_or_404(Paciente, id=id)
+    paciente.delete()
+    return redirect('pacientes')
+
+@login_requerido
 def historia_clinica(request, id):
     paciente = get_object_or_404(Paciente, id=id)
     historia = get_object_or_404(HistoriaClinica, paciente=paciente)
-    ultimo_servicio = ServicioMedico.objects.filter(paciente=paciente).order_by('-fecha').first()
+    ultimo_servicio = ServicioMedico.objects.filter(paciente=paciente).order_by('-fecha_servicio').first()
 
     context = {
         'paciente': paciente,
@@ -254,23 +275,28 @@ def nueva_venta(request):
         paciente = Paciente.objects.filter(id=paciente_id).first() if paciente_id else None
 
         if producto.stock_actual < cantidad:
-            messages.error(request, f"Error: Stock insuficiente. Solo quedan {producto.stock_actual} unidades.")
+            messages.error(
+                request,
+                f"Error: Stock insuficiente. Solo quedan {producto.stock_actual} unidades."
+            )
             return redirect('nueva_venta')
 
         try:
             with transaction.atomic():
                 total_venta = producto.precio_venta * cantidad
+
                 venta = Venta.objects.create(
                     paciente=paciente,
-                    total=total_venta,
-                    usuario_vendedor_id=request.session.get('usuario_id')
+                    total_venta=total_venta,
+                    usuario_id=request.session.get('usuario_id'),
+                    fecha_venta=timezone.now()
                 )
 
                 DetalleVenta.objects.create(
                     venta=venta,
                     producto=producto,
                     cantidad=cantidad,
-                    precio_unitario=producto.precio_venta
+                    precio_unitario_aplicado=producto.precio_venta
                 )
 
                 producto.stock_actual -= cantidad
@@ -278,12 +304,16 @@ def nueva_venta(request):
 
                 MovimientoInventario.objects.create(
                     producto=producto,
-                    tipo_movimiento='salida',
+                    usuario_id=request.session.get('usuario_id'),
+                    tipo='salida',
                     cantidad=cantidad,
-                    usuario_id=request.session.get('usuario_id')
+                    fecha_movimiento=timezone.now()
                 )
 
-                messages.success(request, "Venta realizada con éxito e inventario actualizado.")
+                messages.success(
+                    request,
+                    "Venta realizada con éxito e inventario actualizado."
+                )
                 return redirect('ventas')
 
         except Exception as e:
@@ -292,10 +322,8 @@ def nueva_venta(request):
 
     productos = Producto.objects.filter(stock_actual__gt=0)
     pacientes = Paciente.objects.all()
-    return render(request, 'ventas/venta_form.html', {
-        'productos': productos,
-        'pacientes': pacientes
-    })
+
+    return render(request, 'ventas/venta_form.html', {'productos': productos,'pacientes': pacientes})
 
 @login_requerido
 def lista_ventas(request):

@@ -35,10 +35,10 @@
                                 <a href="{% url 'historia_clinica' p.id %}" class="btn btn-info btn-circle btn-sm" title="Historia Clínica">
                                     <i class="fas fa-notes-medical"></i>
                                 </a>
-                                <a href="#" class="btn btn-warning btn-circle btn-sm" title="Editar">
+                                <a href="{% url 'editar_paciente' p.id %}"  class="btn btn-warning btn-circle btn-sm" title="Editar">
                                     <i class="fas fa-pen"></i>
                                 </a>
-                                <a href="#" class="btn btn-danger btn-circle btn-sm" title="Eliminar">
+                                <a href="{% url 'eliminar_paciente' p.id %}" class="btn btn-danger btn-circle btn-sm" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </td>

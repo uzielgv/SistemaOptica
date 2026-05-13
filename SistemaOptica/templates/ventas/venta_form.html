@@ -16,7 +16,7 @@
                             <select name="cliente" id="cliente" class="form-control">
                                 <option value="">Venta de mostrador (Público general)</option>
                                 {% for p in pacientes %}
-                                    <option value="{{ p.id }}">{{ p.nombre }}</option>
+                                    <option value="{{ p.id }}">{{ p.nombre_completo  }}</option>
                                 {% endfor %}
                             </select>
                         </div>
